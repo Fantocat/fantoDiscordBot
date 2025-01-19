@@ -30,7 +30,7 @@ public class FantoDisBot {
         playerRepo.createTable();
         
 
-        JDA jda = JDABuilder.createDefault("MTE2MTIzOTAxOTg3MTU0NzQ3Mg.G28uxa.pZrRE4xqUfB4t4Y5chdcr-5ozQgUwml3YjIG8E")
+        JDA jda = JDABuilder.createDefault("")
             .addEventListeners(new ChatListener())
             .addEventListeners(new FunnyDisconnect())
             .addEventListeners(new AfkTest())
