@@ -6,6 +6,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import java.util.List;
 
 public class LoLApiClient {
     private final String API_KEY;
@@ -24,7 +25,27 @@ public class LoLApiClient {
                 summonerName, tagLine);
         
         JsonObject response = makeApiCall(url);
-        return response.get("puuid").getAsString();
+        if (response == null) {
+            return null;
+        }
+        return response.get("puuid").getAsString(); 
+    }
+
+    public List<String> getMatchs(String puuid, int count) throws Exception {
+        String url = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/%s/ids?start=0&count=%d",
+                puuid, count);
+        
+        JsonObject response = makeApiCall(url);
+        if (response == null) {
+            return null;
+        }
+        return gson.fromJson(response.get("matchIds"), List.class);
+    }
+
+    public JsonObject getMatchData(String matchId) throws Exception {
+        String url = String.format("https://europe.api.riotgames.com/lol/match/v5/matches/%s", matchId);
+        
+        return makeApiCall(url);
     }
     
     private JsonObject makeApiCall(String url) throws Exception {
@@ -36,7 +57,7 @@ public class LoLApiClient {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         
         if (response.statusCode() != 200) {
-            throw new Exception("API Error: " + response.statusCode() + " - " + response.body());
+            return null;
         }
         
         return gson.fromJson(response.body(), JsonObject.class);

@@ -7,14 +7,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.ArrayList;
+import lombok.NoArgsConstructor;
 
 import fr.fanto.fantodisbot.entities.Player;
 
 
-
+@NoArgsConstructor
 public class PlayerRepo {
 
-    /*
+    
     private Connection conn;
 
     public PlayerRepo(Connection conn) {
@@ -37,22 +38,22 @@ public class PlayerRepo {
         }
     }
 
-    public int getPlayerId(String riotName) {
-        // Récupérer l'ID d'un joueur
-        String sql = "SELECT id FROM players WHERE riotName = '" + riotName + "'";
+    public Player getPlayerByRiotName(String riotName) {
+        // Récupérer un joueur
+        String sql = "SELECT * FROM players WHERE riotName = '" + riotName + "'";
         
         try (Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
-            return rs.getInt(1);
+            return new Player(rs.getString("riotName"), rs.getString("gameName"), rs.getString("tagLine"), rs.getString("puuid"));
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            return -1;
+            return null;
         }
     }
 
-    public Player getPlayer(String riotName) {
+    public Player getPlayerByPuuid(String puuid) {
         // Récupérer un joueur
-        String sql = "SELECT * FROM players WHERE riotName = '" + riotName + "'";
+        String sql = "SELECT * FROM players WHERE puuid = '" + puuid + "'";
         
         try (Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
@@ -109,5 +110,16 @@ public class PlayerRepo {
             System.out.println(e.getMessage());
         }
     }
-    */
+
+    public void deletePlayer(String riotName) {
+        // Supprimer un joueur
+        String sql = "DELETE FROM players WHERE riotName = '" + riotName + "'";
+        
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
 }

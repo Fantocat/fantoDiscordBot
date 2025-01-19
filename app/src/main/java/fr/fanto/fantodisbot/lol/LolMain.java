@@ -3,40 +3,52 @@ package fr.fanto.fantodisbot.lol;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import java.sql.Connection;
 
 import fr.fanto.fantodisbot.lol.LoLGameTracker;
 import fr.fanto.fantodisbot.lol.LoLEmbed;
 
 public class LolMain extends ListenerAdapter {
     private final LoLGameTracker gameTracker;
+    private final String lolChannelId = "1326944913962832016";
     
-    public LolMain(String riotApiKey, TextChannel outputChannel) {
-        this.gameTracker = new LoLGameTracker(riotApiKey, outputChannel);
+    public LolMain(String riotApiKey, TextChannel outputChannel, Connection conn) {
+        this.gameTracker = new LoLGameTracker(riotApiKey, outputChannel, conn);
     }
     
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         String[] args = event.getMessage().getContentRaw().split("\\s+");
+
+        if (!event.getChannel().getId().equals(lolChannelId)) {
+            return;
+        }
         
-        /*
-        if (args[0].equals("!track")) {
-            if (args.length > 1) {
-                gameTracker.addPlayer(args[1]);
+        switch (args[0]) {
+
+            case "!track" -> {
+                if (args.length > 1) {
+                    gameTracker.addPlayer(args[1]);
+                } else {
+                    event.getChannel().sendMessage("Veuillez renseigner un pseudo : Exemple#EXE").queue();
+                }
             }
-        } else if (args[0].equals("!untrack")) {
-            if (args.length > 1) {
-                gameTracker.removePlayer(args[1]);
+
+            case "!untrack" -> {
+                if (args.length > 1) {
+                    gameTracker.deletePlayer(args[1]);
+                } else {
+                    event.getChannel().sendMessage("Veuillez renseigner un pseudo : Exemple#EXE").queue();
+                }
             }
-        }
-        */
-        if (args[0].equals("!getpuuid")){
-            if (args.length > 1) {
-                String puuid = gameTracker.getPuuid(args[1]);
-                event.getChannel().sendMessage("PUUID de " + args[1] + " : " + puuid).queue();
+    
+            case "!list" -> {
+                gameTracker.listPlayers();
             }
-        }
-        if (args[0].equals("!embedtest")){
-            event.getMessage().replyEmbeds(LoLEmbed.getMatchEmbed(event)).queue();
+
+            case "!testMatchData" -> {
+                gameTracker.testMatchData(args[1]);
+            }
         }
     }
 }
